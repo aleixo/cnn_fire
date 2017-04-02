@@ -1,4 +1,11 @@
 from keras.preprocessing.image import ImageDataGenerator,array_to_img,img_to_array,load_img
+import argparse
+
+ap = argparse.ArgumentParser()
+ap.add_argument("-i", "--image", required=False,
+	help="path to the input image")
+args = vars(ap.parse_args())
+
 
 datagen = ImageDataGenerator(
 	rotation_range = 40,
@@ -11,7 +18,7 @@ datagen = ImageDataGenerator(
 	fill_mode='nearest'
 )
 
-img = load_img('images_raw/images/fire_0.jpg')
+img = load_img('args["image"]')
 x = img_to_array(img)
 x = x.reshape((1,) + x.shape)
 
