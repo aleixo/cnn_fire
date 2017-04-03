@@ -1,6 +1,14 @@
 from keras.preprocessing.image import ImageDataGenerator,array_to_img,img_to_array,load_img
 import argparse
 
+"""
+
+Script to make augmented images
+
+augment_image --image images/image_to_be_augmented.jpg
+
+"""
+
 ap = argparse.ArgumentParser()
 ap.add_argument("-i", "--image", required=False,
 	help="path to the input image")

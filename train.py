@@ -7,6 +7,14 @@ import simplejson
 from keras.utils import plot_model
 import matplotlib.pyplot as plt
 
+save_weights_filename = "more_images.h5"
+save_model_filename = "model_more_images.json"
+train_images_path = "images/train"
+validate_images_path = "images/validate"
+
+batch_size = 16
+epochs = 10
+
 K.set_image_dim_ordering('th')
 
 model = Sequential()
@@ -33,31 +41,23 @@ model.compile(loss='binary_crossentropy',
               optimizer='rmsprop',
               metrics=['accuracy'])
 
-batch_size = 16
-
-# this is the augmentation configuration we will use for training
 train_datagen = ImageDataGenerator(
         rescale=1./255,
         shear_range=0.2,
         zoom_range=0.2,
         horizontal_flip=True)
 
-# this is the augmentation configuration we will use for testing:
-# only rescaling
 test_datagen = ImageDataGenerator(rescale=1./255)
 
-# this is a generator that will read pictures found in
-# subfolers of 'data/train', and indefinitely generate
-# batches of augmented image data
 train_generator = train_datagen.flow_from_directory(
-        'images/train',  
+        train_images_path,  
         target_size=(32, 32),  
         batch_size=batch_size,
         class_mode='binary')  
 
-# this is a similar generator, for validation data
+
 validation_generator = test_datagen.flow_from_directory(
-        'images/validate',
+        validate_images_path,
         target_size=(32, 32),
         batch_size=batch_size,
         class_mode='binary')
@@ -65,31 +65,37 @@ validation_generator = test_datagen.flow_from_directory(
 history = model.fit_generator(
         train_generator,
         steps_per_epoch=1000,
-        epochs=4,
+        epochs=epochs,
         validation_data=validation_generator,
         validation_steps=200
 )
+
 model_json = model.to_json()
-with open("model_more_images.json", "w") as json_file:
+
+with open(save_model_filename, "w") as json_file:
     json_file.write(simplejson.dumps(simplejson.loads(model_json), indent=4))
-model.save_weights('more_images2.h5')
+
+model.save_weights(save_weights_filename)
+
 plot_model(model, to_file='model.png')
 print(history.history.keys())
-# summarize history for accuracy
-plt.plot(history.history['acc'])
-plt.plot(history.history['val_acc'])
-plt.title('model accuracy')
-plt.ylabel('accuracy')
-plt.xlabel('epoch')
-plt.legend(['train', 'test'], loc='upper left')
-plt.show()
-# summarize history for loss
-plt.plot(history.history['loss'])
-plt.plot(history.history['val_loss'])
-plt.title('model loss')
-plt.ylabel('loss')
-plt.xlabel('epoch')
-plt.legend(['train', 'test'], loc='upper left')
-plt.show()
 
+def plotDebug():
 
+    plt.plot(history.history['acc'])
+    plt.plot(history.history['val_acc'])
+    plt.title('model accuracy')
+    plt.ylabel('accuracy')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'test'], loc='upper left')
+    plt.show()
+
+    plt.plot(history.history['loss'])
+    plt.plot(history.history['val_loss'])
+    plt.title('model loss')
+    plt.ylabel('loss')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'test'], loc='upper left')
+    plt.show()
+
+plotDebug()

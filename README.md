@@ -13,3 +13,19 @@ Raspbery pi will get the weights from google drive where the trainer machine wil
 User can see streammingm video thought web and control pan&tilt. 
 
 Also not seen here, system is autosuficient in terms of energy.
+
+Mains Reqs:
+- Keras
+- TensorFlow
+- Numpy
+- Matplotlib
+- Scipy
+- ApiClient
+- Imutils
+- OpenCv
+- Argparse
+- MoviePy
+- SimpleJson
+- PyFcm
+- Oauth2client
+- Httplib2

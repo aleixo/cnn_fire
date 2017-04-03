@@ -15,6 +15,17 @@ import cv2
 import argparse
 from keras.utils import plot_model
 
+"""
+
+Test the network
+
+Must have weights and network architecture on the same folder
+
+"""
+
+model_architecture = "model_more_images.json"
+model_weights = "more_images2.h5"
+
 K.set_image_dim_ordering('th')
 
 ap = argparse.ArgumentParser()
@@ -27,14 +38,14 @@ def mean_pred(y_true, y_pred):
 
 
 loaded_model = Sequential()
-json_file = open('model_more_images.json', 'r')
+json_file = open(model_architecture, 'r')
 loaded_model_json = json_file.read()
 json_file.close()
 loaded_model = model_from_json(loaded_model_json)
 loaded_model.compile(loss='binary_crossentropy',
               optimizer='rmsprop',
               metrics=['accuracy', mean_pred])
-loaded_model.load_weights('more_images2.h5')
+loaded_model.load_weights(model_weights)
 loaded_model.summary()
 
 labels = ["fire","not fire"]
@@ -64,6 +75,7 @@ def processImage(image):
 	cv2.putText(orig, "Res: {}".format(labels[int(preds[0][0])]), (10, 30),cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
 	return orig
 
+#Predict on one video
 def moviewVal():
 
 	video_output = "./videos/video_result.mp4"
@@ -71,8 +83,9 @@ def moviewVal():
 	clip_v = clip.fl_image(processImage)
 	clip_v.write_videofile(video_output,audio=False)
 
-if args["image"]:
 
+#If image arg was given, predict on it. Otherwise, try to find video to predict
+if args["image"]:
 	predictOnImage()
 else:
 	moviewVal()
