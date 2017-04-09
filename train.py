@@ -6,14 +6,20 @@ from keras import backend as K
 import simplejson
 from keras.utils import plot_model
 import matplotlib.pyplot as plt
+from sklearn.metrics import confusion_matrix
+from googlemanager import GoogleManager
+
 
 save_weights_filename = "more_images.h5"
 save_model_filename = "model_more_images.json"
 train_images_path = "images/train"
 validate_images_path = "images/validate"
 
+train_aug_test_path = "images/aug"
+train_val_test_path = "images/aug"
+
 batch_size = 16
-epochs = 10
+epochs = 1
 
 K.set_image_dim_ordering('th')
 
@@ -53,7 +59,8 @@ train_generator = train_datagen.flow_from_directory(
         train_images_path,  
         target_size=(32, 32),  
         batch_size=batch_size,
-        class_mode='binary')  
+        class_mode='binary',
+        save_to_dir="images/aug")  
 
 
 validation_generator = test_datagen.flow_from_directory(
@@ -64,10 +71,10 @@ validation_generator = test_datagen.flow_from_directory(
 
 history = model.fit_generator(
         train_generator,
-        steps_per_epoch=1000,
+        steps_per_epoch=1,
         epochs=epochs,
         validation_data=validation_generator,
-        validation_steps=200
+        validation_steps=1
 )
 
 model_json = model.to_json()
@@ -77,7 +84,7 @@ with open(save_model_filename, "w") as json_file:
 
 model.save_weights(save_weights_filename)
 
-plot_model(model, to_file='model.png')
+#plot_model(model, to_file='model.png')
 print(history.history.keys())
 
 def plotDebug():
@@ -97,5 +104,13 @@ def plotDebug():
     plt.xlabel('epoch')
     plt.legend(['train', 'test'], loc='upper left')
     plt.show()
+    
+def upload_files():
+
+    drive = GoogleManager()
+    drive.init_for_upload(save_model_filename,"weights.h5")
+    drive.init_for_upload(save_model_filename,"model.json")
+    drive.init_for_list()
 
 plotDebug()
+upload_files()
