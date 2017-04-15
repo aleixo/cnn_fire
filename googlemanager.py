@@ -13,6 +13,7 @@ from apiclient.http import MediaFileUpload
 import sys
 import argparse
 from pyfcm import FCMNotification
+import h5py
 
 """
 DESCRIPTION
@@ -89,10 +90,10 @@ class GoogleManager:
         credentials = self.get_credentials()
         http = credentials.authorize(httplib2.Http())
         drive_service = discovery.build('drive', 'v3', http=http)
-
-        file_metadata = {'name' : nameToUpload,'mimeType' : 'application/octet-stream'}
-        media = MediaFileUpload(fileToUpload,mimetype='application/octet-stream',resumable=True)
+        file_metadata = {'name' : nameToUpload}
+        media = MediaFileUpload(fileToUpload,resumable=True)
         file = drive_service.files().create(body=file_metadata,media_body=media,fields='id').execute()
+        print(file)
         print("[GOOGLE MANAGER] File with name {} uploaded to Google Drive".format(nameToUpload))
 
     def download_manager(self,fileToDownload=None,list = False):   

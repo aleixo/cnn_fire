@@ -8,10 +8,10 @@ from keras.utils import plot_model
 import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix
 from googlemanager import GoogleManager
+import os
 
-
-save_weights_filename = "more_images.h5"
-save_model_filename = "model_more_images.json"
+save_weights_filename = "weights.h5"
+save_model_filename = "model.json"
 train_images_path = "images/train"
 validate_images_path = "images/validate"
 
@@ -19,7 +19,7 @@ train_aug_test_path = "images/aug"
 train_val_test_path = "images/aug"
 
 batch_size = 16
-epochs = 1
+epochs = 60
 
 K.set_image_dim_ordering('th')
 
@@ -71,21 +71,21 @@ validation_generator = test_datagen.flow_from_directory(
 
 history = model.fit_generator(
         train_generator,
-        steps_per_epoch=1,
+        steps_per_epoch=420,
         epochs=epochs,
         validation_data=validation_generator,
-        validation_steps=1
+        validation_steps=38
 )
 
-model_json = model.to_json()
 
-with open(save_model_filename, "w") as json_file:
-    json_file.write(simplejson.dumps(simplejson.loads(model_json), indent=4))
 
-model.save_weights(save_weights_filename)
+def save_nn_localy():
 
-#plot_model(model, to_file='model.png')
-print(history.history.keys())
+    model_json = model.to_json()
+    with open(save_model_filename, "w") as json_file:
+        json_file.write(simplejson.dumps(simplejson.loads(model_json), indent=4))
+    model.save_weights(save_weights_filename)
+    print("[TRAIN] Saved temporarily weights and model files.")
 
 def plotDebug():
 
@@ -104,13 +104,20 @@ def plotDebug():
     plt.xlabel('epoch')
     plt.legend(['train', 'test'], loc='upper left')
     plt.show()
-    
-def upload_files():
 
+def debugInfo():
+    plot_model(model, to_file='model.png')
+    print(history.history.keys())
+
+def upload_files():
+    save_nn_localy()
     drive = GoogleManager()
-    drive.init_for_upload(save_model_filename,"weights.h5")
-    drive.init_for_upload(save_model_filename,"model.json")
+    drive.init_for_upload(save_model_filename,save_model_filename)
+    drive.init_for_upload(save_weights_filename,save_weights_filename)
     drive.init_for_list()
+    print("[TRAIN] Removed temporarily weights and model files.")
+    os.remove(save_weights_filename)
+    os.remove(save_model_filename)
 
 plotDebug()
 upload_files()

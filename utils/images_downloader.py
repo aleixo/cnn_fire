@@ -155,8 +155,8 @@ def getSiteImgFromTag():
 google_Downloader = GoogleDownloader()
 #google_Downloader.startDownload(args['query'],args['prefix'])
 #getPixabayImages()
-#getSiteImgFromTag()
+getSiteImgFromTag()
 
 utilMethods = Utils()
-utilMethods.deleteDuplicated(destination_dir)
+#utilMethods.deleteDuplicated(destination_dir)
 
