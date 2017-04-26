@@ -8,6 +8,7 @@ import glob
 import  matplotlib.pyplot as plt
 import matplotlib.pylab as pltlab
 import random
+from keras.preprocessing.image import ImageDataGenerator,array_to_img,img_to_array,load_img
 
 """
 DESCRIPTION
@@ -148,6 +149,55 @@ class Utils(object):
             
         plt.show()
         #pltlab.savefig(saveDir+str(random.uniform(0.0,10000.0))+".png")
+    def resizeImagesInFolder(self,dir,size):
+
+        print("[UTILS] Will resize images in {} with {} pixeis per w*h".format(dir,size))
+
+        for filename in paths.list_images(dir):
+            print("[UTILS] Load image {} to resize".format(filename))
+            if not filename.startswith("."):                
+                image = cv2.imread(filename)                
+                image = cv2.resize(image,(size,size),interpolation = cv2.INTER_CUBIC)
+
+                os.remove(filename)
+
+                cv2.imwrite(filename,image)
+    	print("[UTILS] Resized {} images".format(len(os.listdir(dir))))
+
+
+    def augmentImagesInFolder(self,dir_to_augment,batch_size,destination_dir):
+
+    	print("[UTILS] Will generate {} images on {}".format(batch_size,destination_dir))
+    	print("[UTILS-WARNING] Recursive search. The augmented \
+images destination folder should not be inside the parent\
+if it does, function will generate as many augmented images \
+as augmented folder contains times the batch size")    
+
+    	datagen = ImageDataGenerator(
+			rotation_range = 40,
+			width_shift_range = 0.2,
+			height_shift_range = 0.2,
+			rescale=1./255,
+			shear_range=0.2,
+			zoom_range=0.2,
+			horizontal_flip=True,
+			fill_mode='nearest'
+		)
+
+    	
+    	for filename in paths.list_images(dir_to_augment):    	
+
+			img = load_img(filename)
+			x = img_to_array(img)
+			x = x.reshape((1,) + x.shape)
+
+			for i,batch in enumerate(datagen.flow(x,batch_size=1,
+				save_to_dir=destination_dir,
+				save_prefix='', 
+				save_format='png')):				
+				if i + 1 is batch_size :					
+					break
+	print("[UTILS] Done. Folder {} contains {} images".format(destination_dir,len(os.listdir(destination_dir)) - 1))
 
     def renameFilesInFolder(self,destination_dir,prefix):
         for filename in os.listdir(destination_dir):
