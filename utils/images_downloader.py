@@ -17,7 +17,6 @@ from urllib2 import HTTPError
 from urllib2 import build_opener
 
 """
-
 QUERIES:
 forrest
 mountain
@@ -37,7 +36,6 @@ Script to download images from one API and one site
 
 USAGE:
 python images_downloader.py -q forrest -d images/fire/  -p forrest -r 128
-
 """
 
 ap = argparse.ArgumentParser()

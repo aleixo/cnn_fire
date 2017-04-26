@@ -19,7 +19,7 @@ train_aug_test_path = "images/aug"
 train_val_test_path = "images/aug"
 
 batch_size = 16
-epochs = 60
+epochs = 1
 
 K.set_image_dim_ordering('th')
 
@@ -71,13 +71,14 @@ validation_generator = test_datagen.flow_from_directory(
 
 history = model.fit_generator(
         train_generator,
-        steps_per_epoch=420,
+        steps_per_epoch=10,
         epochs=epochs,
         validation_data=validation_generator,
-        validation_steps=38
+        validation_steps=5
 )
 
-
+print(validation_generator)
+print(history)
 
 def save_nn_localy():
 
@@ -119,5 +120,5 @@ def upload_files():
     os.remove(save_weights_filename)
     os.remove(save_model_filename)
 
-plotDebug()
-upload_files()
+#plotDebug()
+#upload_files()

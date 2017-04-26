@@ -8,16 +8,23 @@ import glob
 import  matplotlib.pyplot as plt
 import matplotlib.pylab as pltlab
 import random
+
 """
 DESCRIPTION
 Utils used by other scripts
-
 -resizeImages - Resizes images 32,32
 -changeImgNames - Changes name of images from directory
 -shuffle_in_unisson - Shuffles two arrays using the same randomizer
 -rawToNumpy - Converts raw image format into numpy array
 -deleteDuplicated - Deletes duplicated images from directory
 -getTrainAndTest - Splits train and test data
+
+
+Call to delete duplicated on di
+from utils import Utils
+utilMethods = Utils()
+utilMethods.deleteDuplicated(destination_dir)
+utilMethods.renameFilesInFolder("t","forrest")
 
 """
 
@@ -82,6 +89,7 @@ class Utils(object):
 			indexInComparison = i
 		
 			for (channel,color) in zip(channels,colors):
+
 				hist = cv2.calcHist([channel],[0],None,[256],[0,256])	
 				hists.append(hist)
 		
@@ -106,25 +114,19 @@ class Utils(object):
 
 	def plot3DHistogram(self,image1,image2,saveDIr):
 
-
 		for i,color in enumerate(self.colors):
 
 			hist = cv2.calcHist([image1], [i], None, [256], [0, 256])
-
 			ax1 = plt.subplot(211)
-
 			ax1 = plt.plot(hist, color=color)
-
 			ax1 = plt.xlim([0, 256])
 
 
 		for i,color in enumerate (self.colors):
+
 			hist = cv2.calcHist([image2], [i], None, [256], [0, 256])
-
 			ax2 = plt.subplot(212)
-
 			ax2 = plt.plot(hist, color=color)
-
 			ax2 = plt.xlim([0, 256])
 
 		#plt.show()
@@ -134,3 +136,7 @@ class Utils(object):
 		for filename in glob.glob("Histograms/hist_*"):
 			os.remove(filename)
 
+	def renameFilesInFolder(self,destination_dir,prefix):
+  		for filename in os.listdir(destination_dir):
+  			if not filename.startswith("."):
+  				os.rename(destination_dir + filename,destination_dir + prefix+"-"+str(random.uniform(0.0,10000.0))+".png")

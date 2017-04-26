@@ -71,6 +71,12 @@ class NnTest:
 	def areFilesAvailable(self):
 		return (os.path.exists(model_architecture) and os.path.exists(model_weights))			
 
+    def getWeights(self):
+        return model_weights
+        
+    def getArch(self):
+        return model_architecture
+
 	def predictOnImage(self,image):	
 
 		orig = image
