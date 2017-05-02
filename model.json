@@ -39,9 +39,9 @@
                 },
                 "batch_input_shape": [
                     null,
-                    3,
-                    32,
-                    32
+                    1,
+                    64,
+                    64
                 ],
                 "use_bias": true,
                 "activity_regularizer": null,
@@ -284,7 +284,7 @@
                     "class_name": "Zeros",
                     "config": {}
                 },
-                "units": 1,
+                "units": 2,
                 "use_bias": true,
                 "activity_regularizer": null
             }
@@ -292,7 +292,7 @@
         {
             "class_name": "Activation",
             "config": {
-                "activation": "sigmoid",
+                "activation": "softmax",
                 "trainable": true,
                 "name": "activation_5"
             }

@@ -14,7 +14,7 @@ import imutils
 import cv2
 import argparse
 from keras.utils import plot_model
-
+from nn_test import NnTest
 """
 
 Test the network
@@ -22,9 +22,9 @@ Test the network
 Must have weights and network architecture on the same folder
 
 """
-
-model_architecture = "model_more_images.json"
-model_weights = "more_images2.h5"
+classifier = NnTest()
+model_architecture = "model.json"
+model_weights = "weights.h5"
 
 K.set_image_dim_ordering('th')
 
@@ -48,7 +48,7 @@ loaded_model.compile(loss='binary_crossentropy',
 loaded_model.load_weights(model_weights)
 loaded_model.summary()
 
-labels = ["fire","not fire"]
+labels = ["not fire","fire"]
 
 def predictOnImage():	
 
@@ -67,12 +67,13 @@ def predictOnImage():
 def processImage(image):
 
 	orig = image
-	image = cv2.resize(image,(32,32))
+	image = cv2.resize(image,(64,64))
+	image = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
 	image = image_utils.img_to_array(image)
 	image = np.expand_dims(image, axis=0)
 	preds = loaded_model.predict(image)
 
-	cv2.putText(orig, "Res: {}".format(labels[int(preds[0][0])]), (10, 30),cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
+	cv2.putText(orig, "Res: {}".format(preds), (10, 30),cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
 	return orig
 
 #Predict on one video

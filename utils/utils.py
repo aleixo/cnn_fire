@@ -76,7 +76,7 @@ class Utils(object):
                     image2 = cv2.imread(imagePath2)
                     channels2 = cv2.split(image2)
                     
-                    self.plot3DHistogram(image,image2,dir)
+                    #self.plot3DHistogram(image,image2,dir)
      
                     for (channel2,color) in zip(channels2,colors):
                         
@@ -135,7 +135,7 @@ class Utils(object):
         
         for i,color in enumerate(self.colors):
 
-            hist = cv2.calcHist([image2], [i], None, [256], [0, 256])
+            hist = cv2.calcHist([image1], [i], None, [256], [0, 256])
             ax1 = plt.subplot(223)
             ax1 = plt.plot(hist, color=color)
             ax1 = plt.xlim([0, 256])
@@ -144,7 +144,7 @@ class Utils(object):
         for i,color in enumerate(self.colors):
 
             ax1 = plt.subplot(224)
-            ax1 = plt.imshow(cv2.cvtColor(image2, cv2.COLOR_BGR2RGB))
+            ax1 = plt.imshow(cv2.cvtColor(image1, cv2.COLOR_BGR2RGB))
             ax1 = plt.ylabel("Image to compare")
             
         plt.show()
@@ -164,26 +164,29 @@ class Utils(object):
                 cv2.imwrite(filename,image)
     	print("[UTILS] Resized {} images".format(len(os.listdir(dir))))
 
+    def convertImagesInDirToGrayscale(self,dir):
+
+        print("[UTILS] Started to convert imags to grayscale. WAIT.")
+        for filename in paths.list_images(dir):
+            if not filename.startswith("."):
+                image = cv2.imread(filename)
+                image = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
+                os.remove(filename)
+                cv2.imwrite(filename,image)
+        print("[UTILS] Converted to grayscale {} images".format(len(os.listdir(dir))))
 
     def augmentImagesInFolder(self,dir_to_augment,batch_size,destination_dir):
 
-    	print("[UTILS] Will generate {} images on {}".format(batch_size,destination_dir))
+    	print("[UTILS] Will generate augmented images on {} ".format(destination_dir))
     	print("[UTILS-WARNING] Recursive search. The augmented \
 images destination folder should not be inside the parent\
 if it does, function will generate as many augmented images \
 as augmented folder contains times the batch size")    
-
-    	datagen = ImageDataGenerator(
-			rotation_range = 40,
-			width_shift_range = 0.2,
-			height_shift_range = 0.2,
-			rescale=1./255,
-			shear_range=0.2,
-			zoom_range=0.2,
-			horizontal_flip=True,
-			fill_mode='nearest'
-		)
-
+        print("[UTILS] Wait... Augmenting images started")
+        datagen = ImageDataGenerator(rescale=1./255,
+                                     shear_range=0.2,
+                                     zoom_range=0.2,
+                                     horizontal_flip=True)
     	
     	for filename in paths.list_images(dir_to_augment):    	
 
@@ -195,11 +198,15 @@ as augmented folder contains times the batch size")
 				save_to_dir=destination_dir,
 				save_prefix='', 
 				save_format='png')):				
-				if i + 1 is batch_size :					
+				if i  is batch_size :					
 					break
 	print("[UTILS] Done. Folder {} contains {} images".format(destination_dir,len(os.listdir(destination_dir)) - 1))
 
     def renameFilesInFolder(self,destination_dir,prefix):
+    
         for filename in os.listdir(destination_dir):
             if not filename.startswith("."):
-                os.rename(destination_dir + filename,destination_dir + prefix+"-"+str(random.uniform(0.0,10000.0))+".png")
+
+                newName = destination_dir + prefix+"-"+str(random.uniform(0.0,10000.0))+".png"
+                print("[UTILS] Renaming image {} to {}".format(filename,newName))
+                os.rename(destination_dir + filename,newName)

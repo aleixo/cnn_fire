@@ -116,12 +116,12 @@ class GoogleManager:
                     self.download_file(item['id'],"text/plain",item['name'],drive_service)      
 
 
-drive = GoogleManager()
+#drive = GoogleManager()
 #drive.init_for_download("weights.h5")
 #drive.init_for_download("model.json")
 #drive.init_for_upload("more_images.h5","weights.h5")
 #drive.init_for_upload("model_more_images.json","model.json")
-drive.init_for_list()
+#drive.init_for_list()
 
 
 
