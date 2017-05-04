@@ -36,7 +36,7 @@ class NnTest:
 
 		K.set_image_dim_ordering('th')
 		global labels
-		labels = ["fire","not fire"]
+		labels = ["Nao fogo","fogo"]
 		self.downloadParams();	
 
 	def mean_pred(self,y_true, y_pred):
@@ -81,17 +81,59 @@ class NnTest:
 
 		orig = image
 		#image = image_utils.load_img(args["image"], target_size=(32, 32))
-		image = cv2.resize(image,(32,32))
+		image = cv2.resize(image,(64,64))
+		image = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
 		image = image_utils.img_to_array(image)
 		image = np.expand_dims(image, axis=0)
 		global loaded_model		
 		preds = loaded_model.predict(image)
 		
 		class_result=np.argmax(preds,axis=-1)
-	
+		print(int(preds[0][0]))
 		global labels
 		cv2.putText(orig, "Res: {}".format(labels[int(preds[0][0])]), (10, 30),cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
 
 		return orig,preds
-		#cv2.imshow("Classification", orig)
-		#cv2.waitKey(0)
+
+	def predictOnImageDir(self,imageDir):	
+
+		global loaded_model		
+		global labels
+	
+		image = cv2.imread(imageDir)
+		cv2.imshow("dsa",image)
+		
+		orig = image
+
+		image = cv2.resize(image,(64,64))
+		image = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
+		image = image_utils.img_to_array(image)
+		image = np.expand_dims(image, axis=0)
+
+		preds = loaded_model.predict(image)
+		class_result=np.argmax(preds,axis=-1)
+
+		cv2.putText(orig, "Res: {}".format(labels[int(preds[0][0])]), (10, 30),cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
+		
+		cv2.imshow("Prediction",orig)
+		cv2.waitKey(0)
+
+	def processImage(self,image):
+
+		orig = image
+		image = cv2.resize(image,(64,64))
+		image = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
+		image = image_utils.img_to_array(image)
+		image = np.expand_dims(image, axis=0)
+		preds = loaded_model.predict(image)
+
+		cv2.putText(orig, "Res: {}".format(preds), (10, 30),cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
+		return orig
+
+	#Predict on one video
+	def movieVal(self):
+
+		video_output = "./videos/video_result.mp4"
+		clip = VideoFileClip("./videos/video.mp4")
+		clip_v = clip.fl_image(self.processImage)
+		clip_v.write_videofile(video_output,audio=False)
