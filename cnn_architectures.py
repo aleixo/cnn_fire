@@ -11,7 +11,6 @@ import theano
 from numpy import *
 from sklearn.utils import shuffle
 from sklearn.cross_validation import train_test_split
-ap = argparse.ArgumentParser()
 import cv2
 import simplejson
 from keras import backend as K
@@ -23,33 +22,37 @@ from theano import function
 from keras.models import Model
 
 
-class CnnArchitectures:            
+class CnnArchitectures:     
 
-    def modelArchTwo(self):
+    @staticmethod
+    def smallCustomArch(numChannels, imgRows, imgCols, numClasses):
 
         model = Sequential()
-        model.add(Convolution2D(16, (3, 3),input_shape=(1, 64, 64)))
+        model.add(Convolution2D(32, (3, 3), input_shape=(numChannels, imgRows, imgCols)))
         model.add(Activation('relu'))
-        model.add(MaxPooling2D(pool_size=(nb_pool, nb_pool)))
-    
+        model.add(MaxPooling2D(pool_size=(2, 2)))
+
         model.add(Convolution2D(32, (3, 3)))
         model.add(Activation('relu'))
-        model.add(MaxPooling2D(pool_size=(nb_pool, nb_pool)))
-    
+        model.add(MaxPooling2D(pool_size=(2, 2)))
+
         model.add(Convolution2D(64, (3, 3)))
         model.add(Activation('relu'))
         model.add(MaxPooling2D(pool_size=(2, 2)))
-    
+
         model.add(Flatten())  
         model.add(Dense(64))
         model.add(Activation('relu'))
         model.add(Dropout(0.5))
-        model.add(Dense(nb_classes))
-        model.add(Activation('softmax'))
+        model.add(Dense(numClasses))
+        model.add(Activation('sigmoid'))
+
         model.compile(loss='binary_crossentropy',optimizer='rmsprop',metrics=['accuracy'])
+
         return model
-    
-    def karpathyNet(self,numChannels, imgRows, imgCols, numClasses, **kwargs):
+
+    @staticmethod
+    def karpathyNet(numChannels, imgRows, imgCols, numClasses):
 
         model = Sequential()
         model.add(Convolution2D(16, 5, 5, border_mode="same",input_shape=(numChannels, imgRows, imgCols)))
@@ -69,11 +72,13 @@ class CnnArchitectures:
     
         model.add(Flatten())
         model.add(Dense(numClasses))
-        model.add(Activation("softmax"))
+        model.add(Activation("sigmoid"))
         model.compile(loss='binary_crossentropy',optimizer='rmsprop',metrics=['accuracy'])
+
         return model
 
-    def leNet(self,numChannels, imgRows, imgCols, numClasses, activation="tanh"):
+    @staticmethod
+    def leNet(numChannels, imgRows, imgCols, numClasses, activation="tanh"):
 
         model = Sequential()
         model.add(Convolution2D(20, 5, 5, border_mode="same",input_shape=(numChannels, imgRows, imgCols)))
@@ -83,11 +88,13 @@ class CnnArchitectures:
         model.add(Dense(500))
         model.add(Activation(activation))
         model.add(Dense(numClasses))
-        model.add(Activation("softmax"))
+        model.add(Activation("sigmoid"))
         model.compile(loss='binary_crossentropy',optimizer='rmsprop',metrics=['accuracy'])
+
         return model
 
-    def miniVGGNet(self,numChannels, imgRows, imgCols, numClasses):
+    @staticmethod
+    def miniVGGNet(numChannels, imgRows, imgCols, numClasses):
 
         model = Sequential()
         model.add(Convolution2D(32, 3, 3, border_mode="same",input_shape=(numChannels, imgRows, imgCols)))
@@ -109,6 +116,7 @@ class CnnArchitectures:
         model.add(Activation("relu"))
         model.add(Dropout(0.5))
         model.add(Dense(numClasses))
-        model.add(Activation("softmax"))
+        model.add(Activation("sigmoid"))
         model.compile(loss='binary_crossentropy',optimizer='rmsprop',metrics=['accuracy'])
+        
         return model

@@ -4,14 +4,12 @@ from keras.optimizers import SGD
 from keras.layers import Convolution2D, MaxPooling2D
 from keras.utils import np_utils
 import keras
-import argparse
 import numpy as np
 import os
 import theano
 from numpy import *
 from sklearn.utils import shuffle
 from sklearn.cross_validation import train_test_split
-ap = argparse.ArgumentParser()
 import cv2
 import simplejson
 from keras import backend as K
@@ -32,7 +30,7 @@ class RawImagesLoader:
                 imlist.append(item)
 
         num_samples=size(imlist)    
-
+        print("[RAW IMAGES LOADER] There are {} images in total".format(num_samples))
         return imlist    
 
     def createImagePixelMatrix(self,imlist,imagesPath,forRGB):
@@ -72,7 +70,7 @@ class RawImagesLoader:
     
         return labels
 
-    def getImagesRepresentation(self,imagesPath,imageSize,numClasses,forRGB = False):
+    def getImagesRepresentation(self,imagesPath,imageSize,numClasses,forRGB = False,test_size=0.2,val_size=0.2):
 
         print("[RAW IMAGES LOADER] Will load images from {}".format(imagesPath))
 
@@ -89,10 +87,13 @@ class RawImagesLoader:
 
         (X, y) = (train_data[0],train_data[1])
 
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=4)
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=4)
+
+        X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=val_size, random_state=4)
 
         X_train = np.array(X_train)
         X_test = np.array(X_test)
+        X_val = np.array(X_val)
 
         channels = 1
         if forRGB:
@@ -100,17 +101,22 @@ class RawImagesLoader:
 
         X_train = X_train.reshape(X_train.shape[0], channels, imageSize, imageSize)
         X_test = X_test.reshape(X_test.shape[0], channels, imageSize, imageSize)
+        X_val = X_val.reshape(X_val.shape[0], channels, imageSize, imageSize)
 
         X_train = X_train.astype('float32')
         X_test = X_test.astype('float32')
+        X_val = X_val.astype('float32')
 
         X_train /= 255
         X_test /= 255
+        X_val /= 255
 
         print("[RAW IMAGES LOADER] Loaded images with shape {} for train dataset".format(X_train.shape))
-        print("[RAW IMAGES LOADER] Loaded images with shape {} for train dataset".format(X_test.shape))
+        print("[RAW IMAGES LOADER] Loaded images with shape {} for validation dataset".format(X_val.shape))        
+        print("[RAW IMAGES LOADER] Loaded images with shape {} for test dataset".format(X_test.shape))        
 
         Y_train = np_utils.to_categorical(y_train, numClasses)
         Y_test = np_utils.to_categorical(y_test, numClasses)
+        Y_val = np_utils.to_categorical(y_val, numClasses)
 
-        return X_train,Y_train,X_test,Y_test
+        return X_train,Y_train,X_test,Y_test,X_val,Y_val
