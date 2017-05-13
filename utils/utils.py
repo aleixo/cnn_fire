@@ -69,15 +69,15 @@ class Utils(object):
                
             for i2,imagePath2 in enumerate(paths.list_images(dir)):
                 hists2 = []
+
                 if i2 > indexInComparison:
                 
                     print("[UTILS] Checking for duplicate images in path {} and {}".format(imagePath,imagePath2))
                     
                     image2 = cv2.imread(imagePath2)
-                    channels2 = cv2.split(image2)
-                    
+                    channels2 = cv2.split(image2)                    
                     #self.plot3DHistogram(image,image2,dir)
-     
+                    self.plot3DHistogram(image,image2)
                     for (channel2,color) in zip(channels2,colors):
                         
                         hists2.append(cv2.calcHist([channel2],[0],None,[256],[0,256]))
@@ -93,6 +93,7 @@ class Utils(object):
                                 
                                 if duplicate == 3:
                                     print("[DELETE DUPLICATE IMAGES] Equal images {} {}".format(imagePath,imagePath2))
+
                                     os.remove(imagePath2)
                                     
             
@@ -116,7 +117,7 @@ class Utils(object):
         #plt.show()
         #pltlab.savefig(dir+str(random.uniform(0.0,10000.0))+".png")
 
-    def plot3DHistogram(self,image1,image2,saveDir):
+    def plot3DHistogram(self,image1,image2):
 
         for i,color in enumerate(self.colors):
 
@@ -124,28 +125,28 @@ class Utils(object):
             ax1 = plt.subplot(221)
             ax1 = plt.plot(hist, color=color)
             ax1 = plt.xlim([0, 256])
-            ax1 = plt.ylabel("Histogram in comparision")
+            ax1 = plt.ylabel("Histograma em comparacao")
             
             
         for i,color in enumerate(self.colors):
             
             ax1 = plt.subplot(222)
             ax1 = plt.imshow(cv2.cvtColor(image1, cv2.COLOR_BGR2RGB))
-            ax1 = plt.ylabel("Image in comparision")
+            ax1 = plt.ylabel("Imagem em comparacao")
         
         for i,color in enumerate(self.colors):
 
-            hist = cv2.calcHist([image1], [i], None, [256], [0, 256])
+            hist = cv2.calcHist([image2], [i], None, [256], [0, 256])
             ax1 = plt.subplot(223)
             ax1 = plt.plot(hist, color=color)
             ax1 = plt.xlim([0, 256])
-            ax1 = plt.ylabel("Histogram to compara")
+            ax1 = plt.ylabel("Histograma a comparar")
             
         for i,color in enumerate(self.colors):
 
             ax1 = plt.subplot(224)
-            ax1 = plt.imshow(cv2.cvtColor(image1, cv2.COLOR_BGR2RGB))
-            ax1 = plt.ylabel("Image to compare")
+            ax1 = plt.imshow(cv2.cvtColor(image2, cv2.COLOR_BGR2RGB))
+            ax1 = plt.ylabel("Imagem a comparar")
             
         plt.show()
         #pltlab.savefig(saveDir+str(random.uniform(0.0,10000.0))+".png")
