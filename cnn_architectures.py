@@ -22,6 +22,7 @@ from theano import function
 from keras.models import Model
 
 
+
 class CnnArchitectures:     
 
     @staticmethod
@@ -45,9 +46,11 @@ class CnnArchitectures:
         model.add(Activation('relu'))
         model.add(Dropout(0.5))
         model.add(Dense(numClasses))
-        model.add(Activation('sigmoid'))
+        model.add(Activation('softmax'))
 
-        model.compile(loss='binary_crossentropy',optimizer='rmsprop',metrics=['accuracy'])
+        adadelta = keras.optimizers.Adadelta(lr=1.0, rho=0.95, epsilon=1e-08, decay=0.0)
+
+        model.compile(loss='categorical_crossentropy',optimizer='rmsprop',metrics=['accuracy'])
 
         return model
 
@@ -116,7 +119,9 @@ class CnnArchitectures:
         model.add(Activation("relu"))
         model.add(Dropout(0.5))
         model.add(Dense(numClasses))
-        model.add(Activation("sigmoid"))
-        model.compile(loss='binary_crossentropy',optimizer='rmsprop',metrics=['accuracy'])
+        model.add(Activation("softmax"))
+        adadelta = keras.optimizers.Adadelta(lr=1.0, rho=0.95, epsilon=1e-08, decay=0.0)
+
+        model.compile(loss='categorical_crossentropy',optimizer=adadelta,metrics=['accuracy'])
         
         return model

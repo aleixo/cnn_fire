@@ -41,7 +41,7 @@ save_model_filename = "model.json"
 images_path = args["imagesdir"]
 best_model_checkpointed="best-trainned-model.h5"
 
-img_size = 64
+img_size = 128
 is_rgb = True
 img_channels = 3
 nb_epochs = 60
@@ -54,12 +54,12 @@ X_train,Y_train,X_test,Y_test,X_val,Y_val = images_loader.getImagesRepresentatio
     img_size,
     size(labels_classification),
     forRGB=is_rgb,
-    test_size=0.2,
-    val_size=0.3
+    test_size=0.15,
+    val_size=0.35
     )
 
 early_stopping = keras.callbacks.EarlyStopping(
-    monitor='val_acc', 
+    monitor='val_loss', 
     min_delta=0, 
     patience=10, 
     verbose=0, 
@@ -68,10 +68,10 @@ early_stopping = keras.callbacks.EarlyStopping(
 
 checkpoint = ModelCheckpoint(
     best_model_checkpointed, 
-    monitor='val_acc', 
+    monitor='val_loss', 
     verbose=1, 
     save_best_only=True, 
-    mode='max'
+    mode='min'
     )
 
 tensorboard = keras.callbacks.TensorBoard(
@@ -84,21 +84,21 @@ tensorboard = keras.callbacks.TensorBoard(
 
 reduce_lr = ReduceLROnPlateau(
     monitor='val_loss', 
-    factor=0.001,
-    patience=1, 
-    min_lr=0.001,
-    verbose=1
-    )
+    patience=4, 
+    cooldown=1,
+    min_lr=0.0001,
+    factor=0.9,
+    verbose=1,
+    mode='auto')
 
 csv_logger = CSVLogger('training.log')
-
 model = architectures.miniVGGNet(img_channels,img_size,img_size,size(labels_classification))
 train_callbacks = [checkpoint,reduce_lr,csv_logger]
 
 hist = model.fit(
     X_train, 
     Y_train, 
-    batch_size=32, 
+    batch_size=64, 
     nb_epoch=nb_epochs, 
     verbose=1, 
     callbacks=train_callbacks, 
@@ -123,6 +123,7 @@ evaluateAndDebug(model)
 
 print("[TRAIN MANUAL] Best epoch confusion matrix and score")
 model.load_weights(best_model_checkpointed)
+os.remove(best_model_checkpointed)
 NnTest.debugConfusionMatrixAndClassificationReport(model,X_test,Y_test)
 evaluateAndDebug(model)
 

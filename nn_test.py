@@ -92,7 +92,7 @@ class NnTest:
 		preds = loaded_model.predict(image)
 		
 		class_result=np.argmax(preds,axis=-1)
-		print(int(preds[0][0]))
+		
 		global labels
 		cv2.putText(orig, "Res: {}".format(labels[int(preds[0][0])]), (10, 30),cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
 
@@ -245,7 +245,7 @@ class NnTest:
 			ax.imshow(input_image[0,0,:,:],cmap=matplotlib.cm.gray)
 			ax = plt.ylabel("Previsao {}".format(labels_classification[preds[i - 1]]))
 			ax = plt.xlabel("Atual {}".format(labels_classification[int(Y_test[i][1])]))
-			plt.tight_layout()
+			plt.tight_layout()		
 		plt.show()  
 
 	@staticmethod
