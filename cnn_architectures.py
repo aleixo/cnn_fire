@@ -66,7 +66,7 @@ class CnnArchitectures:
         model.add(Convolution2D(20, 5, 5, border_mode="same"))
         model.add(Activation("relu"))
         model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
-        model.add(Dropout(0.25))
+        model.add(Dropout(0.5))
     
         model.add(Convolution2D(20, 5, 5, border_mode="same"))
         model.add(Activation("relu"))
@@ -119,9 +119,23 @@ class CnnArchitectures:
         model.add(Activation("relu"))
         model.add(Dropout(0.5))
         model.add(Dense(numClasses))
-        model.add(Activation("softmax"))
-        adadelta = keras.optimizers.Adadelta(lr=1.0, rho=0.95, epsilon=1e-08, decay=0.0)
-
-        model.compile(loss='categorical_crossentropy',optimizer=adadelta,metrics=['accuracy'])
         
+        adadelta = keras.optimizers.Adadelta(lr=0.1, rho=0.95, epsilon=1e-08, decay=0.0)
+
+        model.add(Activation("softmax"))
+        model.compile(loss='categorical_crossentropy',optimizer='rmsprop',metrics=['accuracy'])
+        
+        return model
+    @staticmethod
+    def mlp(numClasses,imgRows):
+
+        shape = imgRows*imgRows
+
+        model = Sequential()
+        model.add(Dense(128,activation='relu', input_shape=(128,2)))
+        model.add(Dropout(0.5))
+        model.add(Dense(128,activation='relu'))
+        model.add(Dropout(0.5))
+        model.add(Dense(numClasses,activation='softmax'))
+        model.compile(loss='categorical_crossentropy', optimizer='Adam', matrics = ['accuracy'])
         return model

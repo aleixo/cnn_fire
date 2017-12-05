@@ -55,10 +55,10 @@ class RawImagesLoader:
         labels=np.ones((num_samples,),dtype = int)
         for i,item in enumerate(imlist):
             if item.split("-")[0] == "fire":
-                labels[i] = 1   
+                labels[i] = 0   
                 fireLabelsNum += 1
             elif item.split("-")[0] == "forrest":
-                labels[i] = 0
+                labels[i] = 1
                 forrestLabelsNum += 1
             else:        
                 print("[TRAIN_MANUAL] Error building dataset. Naming convention is not followed on item {}.".format(item))
@@ -70,7 +70,35 @@ class RawImagesLoader:
     
         return labels
 
-    def getImagesRepresentation(self,imagesPath,imageSize,numClasses,forRGB = False,test_size=0.2,val_size=0.2):
+    def getImageRepresentationManualSplit(self,imagesPath,imageSize,numClasses,forRGB = False):
+
+        print("[RAW IMAGES LOADER] Will load images from {}".format(imagesPath))
+
+        imlist = self.createImageList(imagesPath)
+
+        print("[RAW IMAGES LOADER] Got {} images on list".format(size(imlist)))
+
+        immatrix = self.createImagePixelMatrix(imlist,imagesPath,forRGB)        
+        labels = self.createLabelsVector(size(imlist),imlist)
+
+        data,Label = shuffle(immatrix,labels, random_state=2)
+        train_data = [data,Label]
+
+        channels = 1
+        if forRGB:
+            channels = 3
+
+        (X_test, y_test) = (train_data[0],train_data[1])
+
+        
+        X_test = np.array(X_test)            
+        X_test = X_test.reshape(X_test.shape[0], channels, imageSize, imageSize)  
+        X_test = X_test.astype('float32')           
+        X_test /= 255  
+        print("[RAW IMAGES LOADER] Loaded images with shape {} for test dataset".format(X_test.shape))
+        Y_test = np_utils.to_categorical(y_test, numClasses)
+        return X_test,Y_test
+    def getImagesRepresentation(self,imagesPath,imageSize,numClasses,forRGB = False,test_size=0,val_size=0.2):
 
         print("[RAW IMAGES LOADER] Will load images from {}".format(imagesPath))
 
@@ -85,38 +113,64 @@ class RawImagesLoader:
         data,Label = shuffle(immatrix,labels, random_state=2)
         train_data = [data,Label]
 
-        (X, y) = (train_data[0],train_data[1])
-
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=4)
-
-        X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=val_size, random_state=4)
-
-        X_train = np.array(X_train)
-        X_test = np.array(X_test)
-        X_val = np.array(X_val)
-
         channels = 1
         if forRGB:
             channels = 3
 
-        X_train = X_train.reshape(X_train.shape[0], channels, imageSize, imageSize)
-        X_test = X_test.reshape(X_test.shape[0], channels, imageSize, imageSize)
-        X_val = X_val.reshape(X_val.shape[0], channels, imageSize, imageSize)
+        (X, y) = (train_data[0],train_data[1])
 
-        X_train = X_train.astype('float32')
-        X_test = X_test.astype('float32')
-        X_val = X_val.astype('float32')
+        if test_size is 0:
 
-        X_train /= 255
-        X_test /= 255
-        X_val /= 255
+            X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=val_size, random_state=4)
+            X_train = np.array(X_train)            
+            X_val = np.array(X_val)
 
-        print("[RAW IMAGES LOADER] Loaded images with shape {} for train dataset".format(X_train.shape))
-        print("[RAW IMAGES LOADER] Loaded images with shape {} for validation dataset".format(X_val.shape))        
-        print("[RAW IMAGES LOADER] Loaded images with shape {} for test dataset".format(X_test.shape))        
+            X_train = X_train.reshape(X_train.shape[0], channels, imageSize, imageSize)            
+            X_val = X_val.reshape(X_val.shape[0], channels, imageSize, imageSize)
 
-        Y_train = np_utils.to_categorical(y_train, numClasses)
-        Y_test = np_utils.to_categorical(y_test, numClasses)
-        Y_val = np_utils.to_categorical(y_val, numClasses)
+            X_train = X_train.astype('float32')            
+            X_val = X_val.astype('float32')
 
-        return X_train,Y_train,X_test,Y_test,X_val,Y_val
+            X_train /= 255            
+            X_val /= 255
+
+            print("[RAW IMAGES LOADER] Loaded images with shape {} for train dataset".format(X_train.shape))
+            print("[RAW IMAGES LOADER] Loaded images with shape {} for validation dataset".format(X_val.shape))                    
+
+            Y_train = np_utils.to_categorical(y_train, numClasses)
+            Y_val = np_utils.to_categorical(y_val, numClasses)
+
+            return X_train,Y_train,X_val,Y_val
+
+        else:
+            X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=4)
+
+            X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=val_size, random_state=4)
+
+            X_train = np.array(X_train)
+            X_test = np.array(X_test)
+            X_val = np.array(X_val)
+
+        
+
+            X_train = X_train.reshape(X_train.shape[0], channels, imageSize, imageSize)
+            X_test = X_test.reshape(X_test.shape[0], channels, imageSize, imageSize)
+            X_val = X_val.reshape(X_val.shape[0], channels, imageSize, imageSize)
+
+            X_train = X_train.astype('float32')
+            X_test = X_test.astype('float32')
+            X_val = X_val.astype('float32')
+
+            X_train /= 255
+            X_test /= 255
+            X_val /= 255
+
+            print("[RAW IMAGES LOADER] Loaded images with shape {} for train dataset".format(X_train.shape))
+            print("[RAW IMAGES LOADER] Loaded images with shape {} for validation dataset".format(X_val.shape))        
+            print("[RAW IMAGES LOADER] Loaded images with shape {} for test dataset".format(X_test.shape))        
+
+            Y_train = np_utils.to_categorical(y_train, numClasses)
+            Y_test = np_utils.to_categorical(y_test, numClasses)
+            Y_val = np_utils.to_categorical(y_val, numClasses)
+
+            return X_train,Y_train,X_test,Y_test,X_val,Y_val

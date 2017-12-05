@@ -40,7 +40,7 @@ class NnTest:
 
 		K.set_image_dim_ordering('th')
 		global labels
-		labels = ["Nao fogo","fogo"]
+		labels = ["Fire","Non fire"]
 		self.downloadParams();
 		return None
 
@@ -94,7 +94,7 @@ class NnTest:
 		class_result=np.argmax(preds,axis=-1)
 		
 		global labels
-		cv2.putText(orig, "Res: {}".format(labels[int(preds[0][0])]), (10, 30),cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
+		cv2.putText(orig, "{}".format(labels[int(preds[0][0])]), (10, 30),cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 1)
 
 		return orig,preds
 
@@ -102,13 +102,11 @@ class NnTest:
 
 		global loaded_model		
 		global labels
-	
+			
 		image = cv2.imread(imageDir)
-		cv2.imshow("dsa",image)
-		
 		orig = image
 
-		image = cv2.resize(image,(64,64))
+		image = cv2.resize(image,(128,128))
 		#image = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
 		image = image_utils.img_to_array(image)
 		image = np.expand_dims(image, axis=0)
@@ -125,8 +123,8 @@ class NnTest:
 	def processImage(self,image):
 
 		orig = image
-		image = cv2.resize(image,(64,64))
-		#image = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
+		image = cv2.resize(image,(128,128))
+		image = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
 		image = image_utils.img_to_array(image)
 		image = np.expand_dims(image, axis=0)
 		preds = loaded_model.predict(image)

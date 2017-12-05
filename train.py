@@ -18,6 +18,7 @@ from raw_images_loader import RawImagesLoader
 
 ap = argparse.ArgumentParser()
 ap.add_argument("-a","--arch",required=True,help="Model arch")
+ap.add_argument("-t","--testpath",required=True,help="Model arch")
 args = vars(ap.parse_args())
 
 save_weights_filename = "weights.h5"
@@ -28,77 +29,101 @@ validate_images_path = "images/validate"
 test_images_path = "images/test_mixed_classes"
 
 batch_size = 16
-epochs = 60
-
-
-
-
+epochs = 1
+img_size = 64
+forRGB = True
+channels = 0
+if forRGB:
+    channels = 3
+else:
+    channels = 1
+    
 best_model_checkpointed="best-trainned-model.h5"
 K.set_image_dim_ordering('th')
 
 if args["arch"] == "karpathy":
         print("[TRAIN] Training with karpathy")
-        model = CnnArchitectures.karpathyNet(3,64,64,1)
+        model = CnnArchitectures.karpathyNet(channels,img_size,img_size,2)
 elif args["arch"] == "custom":
         print("[TRAIN] Training with custom arch")
-        model = CnnArchitectures.smallCustomArch(3,64,64,1)
+        model = CnnArchitectures.smallCustomArch(channels,img_size,img_size,2)
 elif args["arch"] == "vgg":
         print("[TRAIN] Training with mini vgg")
-        model = CnnArchitectures.miniVGGNet(3,64,64,1)
+        model = CnnArchitectures.miniVGGNet(channels,img_size,img_size,2)
 elif args["arch"] == "lenet":
         print("[TRAIN] Training with mini leNet")
-        model = CnnArchitectures.leNet(3,64,64,1)
-        
+        model = CnnArchitectures.leNet(channels,img_size,img_size,2)
+elif args["arch"] == "mlp":
+    print("[TRAIN] Training with mlp")
+    model = CnnArchitectures.mlp(2,img_size)
+
+images_loader = RawImagesLoader()
+
+X_test,Y_test = images_loader.getImageRepresentationManualSplit(
+    args["testpath"],
+    img_size,
+    2,
+    forRGB=forRGB
+    )
+
 train_datagen = ImageDataGenerator(
-        rescale=1./255,
-        shear_range=0.2,
-        zoom_range=0.2,
-        horizontal_flip=True
-        )
+    rescale=1./255,
+    shear_range=0.2,
+    zoom_range=0.2,
+    horizontal_flip=True
+    )
 
 test_datagen = ImageDataGenerator(rescale=1./255)
 
 train_generator = train_datagen.flow_from_directory(
-        train_images_path,  
-        target_size=(64, 64),  
-        batch_size=batch_size,
-        class_mode='binary'
-        )  
+    train_images_path,
+    target_size=(img_size, img_size),
+    batch_size=batch_size
+    )  
 
 validation_generator = test_datagen.flow_from_directory(
         validate_images_path,
-        target_size=(64, 64),
-        batch_size=batch_size,
-        class_mode='binary'
+        target_size=(img_size, img_size),
+        batch_size=batch_size      
         )
 
 checkpoint = ModelCheckpoint(
     best_model_checkpointed, 
-    monitor='val_acc', 
+    monitor='val_loss', 
     verbose=1, 
     save_best_only=True, 
-    mode='max'
+    mode='min'
     )
-
+reduce_lr = ReduceLROnPlateau(
+    monitor='val_loss', 
+    patience=2, 
+    cooldown=1,
+    min_lr=0.0001,
+    factor=0.5,
+    verbose=1,
+    mode='auto')
 train_callbacks = [checkpoint]
 
-#print(train_generator.class_indices)
+print(train_generator.class_indices)
 #print(validation_generator.class_indices)
-
 
 history = model.fit_generator(
         train_generator,
-        steps_per_epoch=1700,
+        steps_per_epoch=1,
         epochs=epochs,
         verbose=1,
         callbacks=train_callbacks,
         validation_data=validation_generator,
-        validation_steps=196
+        validation_steps=1
 )
 
-#NnTest.visualizeLossAndAcc(epochs,history)
-NnTest.manualConfusionMatrix(model,test_images_path)
+model.load_weights(best_model_checkpointed)
+os.remove(best_model_checkpointed)
+NnTest.debugConfusionMatrixAndClassificationReport(model,X_test,Y_test)
+NnTest.visualizeLossAndAcc(epochs,history)
 NnTest.upload_files(model,save_model_filename,save_weights_filename)
+nnTest = NnTest() 
+nnTest.predictOnImageDir(args["testpath"])	
 
 
 

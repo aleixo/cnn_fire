@@ -176,7 +176,7 @@ class Utils(object):
                 cv2.imwrite(filename,image)
         print("[UTILS] Converted to grayscale {} images".format(len(os.listdir(dir))))
 
-    def augmentImagesInFolder(self,dir_to_augment,batch_size,destination_dir):
+    def augmentImagesInFolder(self,dir_to_augment,batch_size,destination_dir,for_validation_dataset=False):
 
     	print("[UTILS] Will generate augmented images on {} ".format(destination_dir))
     	print("[UTILS-WARNING] Recursive search. The augmented \
@@ -189,16 +189,24 @@ as augmented folder contains times the batch size")
                                      zoom_range=0.2,
                                      horizontal_flip=True)
     	
-    	for filename in paths.list_images(dir_to_augment):    	
+        if for_validation_dataset:
+            datagen = ImageDataGenerator(
+                rescale=1./255                
+                )
 
-			img = load_img(filename)
-			x = img_to_array(img)
-			x = x.reshape((1,) + x.shape)
-
-			for i,batch in enumerate(datagen.flow(x,batch_size=1,
-				save_to_dir=destination_dir,
-				save_prefix='', 
-				save_format='png')):				
+    	for filename in paths.list_images(dir_to_augment):
+            name = filename.split("-")[0]
+            name = name + "-"
+            img = load_img(filename)
+            x = img_to_array(img)
+            x = x.reshape((1,) + x.shape)
+            for i,batch in enumerate(datagen.flow(
+                x,
+                batch_size=1,
+                save_to_dir=destination_dir,
+                save_prefix=name,
+                save_format='png'
+                )):				
 				if i  is batch_size :					
 					break
 	print("[UTILS] Done. Folder {} contains {} images".format(destination_dir,len(os.listdir(destination_dir)) - 1))
