@@ -1,0 +1,14 @@
+{
+    "dataset": {
+        "TRAIN": "",
+        "VALIDATION": "",
+        "TEST": "",
+    },
+    "model_architecture_file": "model.json",
+    "model_weights_file": "weights.h5",
+    "best_model_checkpointed_file": "best-trainned-model.h5",
+    "categories": {
+        "POSITIVE": "fire",
+        "NEGATIVE": "not fire",
+    }
+}
