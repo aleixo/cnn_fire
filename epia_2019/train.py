@@ -14,7 +14,6 @@ from keras.callbacks import ModelCheckpoint,ReduceLROnPlateau,ProgbarLogger,CSVL
 from sklearn.metrics import confusion_matrix
 
 # Own modules
-from googlemanager import GoogleManager
 from cnn_architectures import CnnArchitectures
 from nn_test import NnTest
 from raw_images_loader import RawImagesLoader
@@ -31,17 +30,19 @@ train_images_path = "epia_2019/images/train"
 validate_images_path = "epia_2019/images/validate"
 test_images_path = "epia_2019/images/test_mixed_classes"
 
+best_model_checkpointed="best-trainned-model.h5"
+
 batch_size = 16
 epochs = 1
 img_size = 64
 forRGB = True
 channels = 0
+
 if forRGB:
     channels = 3
 else:
     channels = 1
     
-best_model_checkpointed="best-trainned-model.h5"
 K.set_image_dim_ordering('th')
 
 if args["arch"] == "karpathy":

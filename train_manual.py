@@ -26,7 +26,6 @@ import os
 
 from raw_images_loader import RawImagesLoader
 from cnn_architectures import CnnArchitectures
-from googlemanager import GoogleManager
 from nn_test import NnTest
 
 

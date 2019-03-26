@@ -11,7 +11,6 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix
 import os
 import argparse
-from googlemanager import GoogleManager
 from cnn_architectures import CnnArchitectures
 from nn_test import NnTest
 from raw_images_loader import RawImagesLoader

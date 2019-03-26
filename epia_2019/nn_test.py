@@ -23,8 +23,6 @@ from keras.preprocessing import image as image_utils
 from moviepy.editor import VideoFileClip
 from sklearn.metrics import classification_report,confusion_matrix
 
-from google_manager import GoogleManager
-
 """
 Test the network
 Must have weights and network architecture on the same folder
@@ -52,15 +50,10 @@ class NnTest:
 		return K.mean(y_pred)
 	
 	def downloadParams(self):
-		gotFiles = False
-		drive = GoogleManager()
+		gotFiles = False		
 		
 		print("Will download")
-			
-
-		drive.init_for_download(model_weights)	
-		drive.init_for_download(model_architecture)		
-
+						
 		if (os.path.exists(model_architecture) and os.path.exists(model_weights)):
 
 			global loaded_model
@@ -258,10 +251,6 @@ class NnTest:
 		model.save_weights(save_weights_filename)
 		print("[TRAIN] Saved temporarily weights and model files.")
 
-		drive = GoogleManager()
-		drive.init_for_upload(save_model_filename,save_model_filename)
-		drive.init_for_upload(save_weights_filename,save_weights_filename)
-		drive.init_for_list()
 		print("[TRAIN] Removed temporarily weights and model files.")
 		os.remove(save_weights_filename)
 		os.remove(save_model_filename)

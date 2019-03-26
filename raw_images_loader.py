@@ -14,7 +14,7 @@ import cv2
 import simplejson
 from keras import backend as K
 from sklearn.metrics import classification_report,confusion_matrix
-from googlemanager import GoogleManager
+
 import matplotlib
 import matplotlib.pyplot as plt
 from theano import function

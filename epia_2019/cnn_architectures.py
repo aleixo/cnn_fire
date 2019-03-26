@@ -21,8 +21,6 @@ from sklearn.utils import shuffle
 from sklearn.cross_validation import train_test_split
 from sklearn.metrics import classification_report,confusion_matrix
 
-from googlemanager import GoogleManager
-
 class CnnArchitectures:     
 
     @staticmethod
